@@ -1,97 +1,125 @@
 ---
 title: 'Quickstart'
-description: 'Start building awesome documentation in under 5 minutes'
 ---
 
-## Setup your development
+# Quickstart in 5 Minutes
 
-Learn how to update your docs locally and deploy them to the public.
+Follow this guide to complete your first identity verification in under five minutes.
 
-### Edit and preview
+### Step 1: Get Your API Keys
 
-<AccordionGroup>
-  <Accordion icon="github" title="Clone your docs locally">
-    During the onboarding process, we created a repository on your Github with
-    your docs content. You can find this repository on our
-    [dashboard](https://dashboard.mintlify.com). To clone the repository
-    locally, follow these
-    [instructions](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
-    in your terminal.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Preview changes">
-    Previewing helps you make sure your changes look as intended. We built a
-    command line interface to render these changes locally. 
-    1. Install the
-    [Mintlify CLI](https://www.npmjs.com/package/mintlify) to preview the
-    documentation changes locally with this command: ``` npm i -g mintlify ```
-    2. Run the following command at the root of your documentation (where
-    `docs.json` is): ``` mintlify dev ```
-    <Note>
-      If you’re currently using the legacy ```mint.json``` configuration file, please update the Mintlify CLI:
+To use the hConnect API, you need a `Client ID` and a `Client Secret`.
 
+1.  Log in to the **[hConnect Developer Dashboard](https://dashboard.hopae.com)**.
+2.  Navigate to the **'Applications'** section and create a new app.
+3.  From your app's detail page, copy the `Client ID` and `Client Secret`. Keep them secure, as they will be used for Basic Authentication in your API requests.
 
-      ```npm i -g mintlify@latest```
-      And run the new upgrade command in your docs repository:
+### Step 2: Create a Verification Session
 
-      ```mintlify upgrade```
-      You should now be using the new ```docs.json``` configuration file. Feel free to delete the ```mint.json``` file from your repository.
-    </Note>
-  </Accordion>
-</AccordionGroup>
+Now, call the API to create a session to verify a user. We'll use Sweden's **BankID** as an example.
 
-### Deploy your changes
+Replace `YOUR_CLIENT_ID` and `YOUR_CLIENT_SECRET` with the values from Step 1.
 
-<AccordionGroup>
+<Tabs>
+<Tab title="BankID SE (QR Flow)">
+```bash cURL
+curl --request POST \
+  --url https://api-gw.hopae.com/v1/verifications \
+  --user "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "eid": "bankidse"
+  }'
+```
 
-<Accordion icon="message-bot" title="Install our Github app">
-  Our Github app automatically deploys your changes to your docs site, so you
-  don't need to manage deployments yourself. You can find the link to install on
-  your [dashboard](https://dashboard.mintlify.com). Once the bot has been
-  successfully installed, there should be a check mark next to the commit hash
-  of the repo.
-</Accordion>
-<Accordion icon="rocket" title="Push your changes">
-  [Commit and push your changes to
-  Git](https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository#about-git-push)
-  for your changes to update in your docs site. If you push and don't see that
-  the Github app successfully deployed your changes, you can also manually
-  update your docs through our [dashboard](https://dashboard.mintlify.com).
-</Accordion>
+**✅ Success Response:**
+Convert the `flowDetails.qrData` into a QR code and display it to your user.
+```json
+{
+  "verificationId": "ver_Abc123Def456",
+  "status": "initiated",
+  "eid": "bankidse",
+  "flow": "qr",
+  "flowDetails": {
+    "qrData": "BASE64_ENCODED_QR_CODE_DATA"
+  },
+  "expiresAt": "2024-07-30T10:05:00.000Z"
+}
+```
+</Tab>
+<Tab title="Evrotrust (Push Flow)">
+Evrotrust sends a push notification to the user. `userData` is required to identify the user.
 
-</AccordionGroup>
+```bash cURL
+curl --request POST \
+  --url https://api-gw.hopae.com/v1/verifications \
+  --user "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "eid": "evrotrust",
+    "userData": {
+      "email": "user@example.com"
+    }
+  }'
+```
+**✅ Success Response:**
+The `flow` is `push`, indicating that a notification has been sent to the user's device.
+```json
+{
+  "verificationId": "ver_...",
+  "status": "initiated",
+  "eid": "evrotrust",
+  "flow": "push",
+  "expiresAt": "..."
+}
+```
+</Tab>
+</Tabs>
 
-## Update your docs
+### Step 3: Check the Verification Status
 
-Add content directly in your files with MDX syntax and React components. You can use any of our components, or even build your own.
+Periodically poll the API with the `verificationId` until the user completes the verification.
+
+```bash cURL
+curl --request GET \
+  --url https://api-gw.hopae.com/v1/verifications/ver_Abc123Def456 \
+  --user "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET"
+```
+
+**✅ Completed Response:**
+The `status` will change to `completed`, and the `verifiedAttributes` field will contain the user's information.
+
+```json
+{
+  "verificationId": "ver_Abc123Def456",
+  "status": "completed",
+  "eid": "bankidse",
+  "verifiedAttributes": {
+    "id": "pairwise-id-for-this-user",
+    "provider_id": "198001011234",
+    "given_name": "John",
+    "family_name": "Doe",
+    "name": "John Doe",
+    "birthdate": "1980-01-01"
+  },
+  "verifiedAt": "2024-07-30T10:01:30.000Z"
+}
+```
+
+<Note>
+**Looking for the `authorizationCode`?**
+For QR and Push flows, the `authorizationCode` is included in the response when the status becomes `completed`. You can then use this code with our **[Token API](/api-reference/token/create)** or follow the **[QR Flow Integration Guide](/guides/qr-flow)** to redirect the user.
+</Note>
+
+**Congratulations!** 🎉 You've successfully completed your first identity verification.
+
+### Next Steps
 
 <CardGroup>
-
-<Card title="Add Content With MDX" icon="file" href="/essentials/markdown">
-  Add content to your docs with MDX syntax.
-</Card>
-
-<Card
-  title="Add Code Blocks"
-  icon="square-code"
-  href="/essentials/code"
->
-  Add code directly to your docs with syntax highlighting.
-</Card>
-
-<Card
-  title="Add Images"
-  icon="image"
-  href="/essentials/images"
->
-  Add images to your docs to make them more engaging.
-</Card>
-
-<Card
-  title="Add Custom Components"
-  icon="puzzle-piece"
-  href="/essentials/reusable-snippets"
->
-  Add templates to your docs to make them more reusable.
-</Card>
-
+  <Card title="Understanding Verification Flows" href="/core-concepts/verification-flow" icon="projector-screen-chart">
+    Learn about the differences between QR, Redirect, and Push flows and the session lifecycle.
+  </Card>
+  <Card title="Full List of Supported eIDs" href="/core-concepts/supported-eids" icon="identification-card">
+    Check out the list of eID providers to expand your service to more countries.
+  </Card>
 </CardGroup>
