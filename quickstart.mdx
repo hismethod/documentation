@@ -1,5 +1,6 @@
 ---
-title: 'Quickstart'
+title: "Quickstart"
+sidebarTitle: "Quickstart"
 ---
 
 # Quickstart in 5 Minutes
@@ -10,9 +11,9 @@ Follow this guide to complete your first identity verification in under five min
 
 To use the hConnect API, you need a `Client ID` and a `Client Secret`.
 
-1.  Log in to the **[hConnect Developer Dashboard](https://dashboard.hopae.com)**.
-2.  Navigate to the **'Applications'** section and create a new app.
-3.  From your app's detail page, copy the `Client ID` and `Client Secret`. Keep them secure, as they will be used for Basic Authentication in your API requests.
+1. Log in to the [**hConnect Developer Dashboard**](https://dashboard.hopae.com).
+2. Navigate to the **'Applications'** section and create a new app.
+3. From your app's detail page, copy the `Client ID` and `Client Secret`. Keep them secure, as they will be used for Basic Authentication in your API requests.
 
 ### Step 2: Create a Verification Session
 
@@ -21,59 +22,62 @@ Now, call the API to create a session to verify a user. We'll use Sweden's **Ban
 Replace `YOUR_CLIENT_ID` and `YOUR_CLIENT_SECRET` with the values from Step 1.
 
 <Tabs>
-<Tab title="BankID SE (QR Flow)">
-```bash cURL
-curl --request POST \
-  --url https://api-gw.hopae.com/v1/verifications \
-  --user "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET" \
-  --header "Content-Type: application/json" \
-  --data '{
-    "eid": "bankidse"
-  }'
-```
+  <Tab title="BankID SE (QR Flow)">
+    ```bash cURL
+    curl --request POST \
+      --url https://api-gw.hopae.com/v1/verifications \
+      --user "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET" \
+      --header "Content-Type: application/json" \
+      --data '{
+        "eid": "bankidse"
+      }'
+    ```
 
-**✅ Success Response:**
-Convert the `flowDetails.qrData` into a QR code and display it to your user.
-```json
-{
-  "verificationId": "ver_Abc123Def456",
-  "status": "initiated",
-  "eid": "bankidse",
-  "flow": "qr",
-  "flowDetails": {
-    "qrData": "BASE64_ENCODED_QR_CODE_DATA"
-  },
-  "expiresAt": "2024-07-30T10:05:00.000Z"
-}
-```
-</Tab>
-<Tab title="Evrotrust (Push Flow)">
-Evrotrust sends a push notification to the user. `userData` is required to identify the user.
+    **✅ Success Response:**
+    Convert the `flowDetails.qrData` into a QR code and display it to your user.
 
-```bash cURL
-curl --request POST \
-  --url https://api-gw.hopae.com/v1/verifications \
-  --user "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET" \
-  --header "Content-Type: application/json" \
-  --data '{
-    "eid": "evrotrust",
-    "userData": {
-      "email": "user@example.com"
+    ```json
+    {
+      "verificationId": "ver_Abc123Def456",
+      "status": "initiated",
+      "eid": "bankidse",
+      "flow": "qr",
+      "flowDetails": {
+        "qrData": "BASE64_ENCODED_QR_CODE_DATA"
+      },
+      "expiresAt": "2024-07-30T10:05:00.000Z"
     }
-  }'
-```
-**✅ Success Response:**
-The `flow` is `push`, indicating that a notification has been sent to the user's device.
-```json
-{
-  "verificationId": "ver_...",
-  "status": "initiated",
-  "eid": "evrotrust",
-  "flow": "push",
-  "expiresAt": "..."
-}
-```
-</Tab>
+    ```
+  </Tab>
+  <Tab title="Evrotrust (Push Flow)">
+    Evrotrust sends a push notification to the user. `userData` is required to identify the user.
+
+    ```bash cURL
+    curl --request POST \
+      --url https://api-gw.hopae.com/v1/verifications \
+      --user "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET" \
+      --header "Content-Type: application/json" \
+      --data '{
+        "eid": "evrotrust",
+        "userData": {
+          "email": "user@example.com"
+        }
+      }'
+    ```
+
+    **✅ Success Response:**
+    The `flow` is `push`, indicating that a notification has been sent to the user's device.
+
+    ```json
+    {
+      "verificationId": "ver_...",
+      "status": "initiated",
+      "eid": "evrotrust",
+      "flow": "push",
+      "expiresAt": "..."
+    }
+    ```
+  </Tab>
 </Tabs>
 
 ### Step 3: Check the Verification Status
@@ -107,19 +111,19 @@ The `status` will change to `completed`, and the `verifiedAttributes` field will
 ```
 
 <Note>
-**Looking for the `authorizationCode`?**
-For QR and Push flows, the `authorizationCode` is included in the response when the status becomes `completed`. You can then use this code with our **[Token API](/api-reference/token/create)** or follow the **[QR Flow Integration Guide](/guides/qr-flow)** to redirect the user.
+  **`Looking for the authorizationCode?`**
+  For QR and Push flows, the `authorizationCode` is included in the response when the status becomes `completed`. You can then use this code with our [**Token API**](/api-reference/token/create) or follow the [**QR Flow Integration Guide**](/guides/qr-flow) to redirect the user.
 </Note>
 
-**Congratulations!** 🎉 You've successfully completed your first identity verification.
+**Congratulations\!** 🎉 You've successfully completed your first identity verification.
 
 ### Next Steps
 
-<CardGroup>
-  <Card title="Understanding Verification Flows" href="/core-concepts/verification-flow" icon="projector-screen-chart">
+<CardGroup cols={2}>
+  <Card title="Understanding Verification Flows" icon="projector-screen-chart" href="/core-concepts/verification-flow">
     Learn about the differences between QR, Redirect, and Push flows and the session lifecycle.
   </Card>
-  <Card title="Full List of Supported eIDs" href="/core-concepts/supported-eids" icon="identification-card">
+  <Card title="Full List of Supported eIDs" icon="identification-card" href="/core-concepts/supported-eids">
     Check out the list of eID providers to expand your service to more countries.
   </Card>
 </CardGroup>

@@ -1,5 +1,6 @@
 ---
-title: 'How Verification Works'
+title: "How Verification Works"
+mode: "wide"
 ---
 
 # How Verification Works
@@ -10,26 +11,26 @@ An hConnect verification session has a clear lifecycle, from creation to complet
 
 A session can have one of the following statuses:
 
-| Status | Description |
-| :--- | :--- |
-| `initiated` | The session has been created, and communication with the eID provider is starting. |
-| `pending` | Waiting for the user to take action (e.g., QR code displayed, awaiting redirect). |
-| `authenticating` | (Optional) The user is actively authenticating in their eID app. |
-| `completed` | The user has successfully completed the verification. User data is available in the `verifiedAttributes` field. |
-| `failed` | The verification failed (e.g., user rejection, incorrect credentials). Check the `error` field for details. |
-| `expired` | The session expired because the user did not complete the action in time. |
-| `cancelled` | The verification was cancelled by the developer (RP) or the user. |
+| Status           | Description                                                                                                     |
+| :--------------- | :-------------------------------------------------------------------------------------------------------------- |
+| `initiated`      | The session has been created, and communication with the eID provider is starting.                              |
+| `pending`        | Waiting for the user to take action (e.g., QR code displayed, awaiting redirect).                               |
+| `authenticating` | (Optional) The user is actively authenticating in their eID app.                                                |
+| `completed`      | The user has successfully completed the verification. User data is available in the `verifiedAttributes` field. |
+| `failed`         | The verification failed (e.g., user rejection, incorrect credentials). Check the `error` field for details.     |
+| `expired`        | The session expired because the user did not complete the action in time.                                       |
+| `cancelled`      | The verification was cancelled by the developer (RP) or the user.                                               |
 
 ### Verification Flows
 
 hConnect automatically selects the optimal flow based on the eID provider.
 
-| Flow Type | Description | Key eID Providers |
-| :--- | :--- | :--- |
-| **QR Code (QR)** | The user scans a QR code on a web screen with their mobile eID app. | BankID SE, FrejaID, KMDL |
-| **Redirect** | The user is redirected to the eID provider's authentication page and then back to your service. | MitID, Singpass, Most European eIDs |
-| **Push** | A push notification is sent to the user's device for them to approve the verification. | Audkenni, Smart-ID, Evrotrust |
+| Flow Type        | Description                                                                                     | Key eID Providers                   |
+| :--------------- | :---------------------------------------------------------------------------------------------- | :---------------------------------- |
+| **QR Code (QR)** | The user scans a QR code on a web screen with their mobile eID app.                             | BankID SE, FrejaID, KMDL            |
+| **Redirect**     | The user is redirected to the eID provider's authentication page and then back to your service. | MitID, Singpass, Most European eIDs |
+| **Push**         | A push notification is sent to the user's device for them to approve the verification.          | Audkenni, Smart-ID, Evrotrust       |
 
 <Tip>
-For detailed instructions on each flow, see the **[Integration Guides](/guides/qr-flow)** section.
+  For detailed instructions on each flow, see the [**Integration Guides**](/guides/qr-flow) section.
 </Tip>
