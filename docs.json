@@ -48,10 +48,12 @@
                         ]
                     },
                    {
-                        "group": "verifications",
-                        "openapi": {
-                          "source": "openapi.json"
-                        }
+                        "group": "Verifications",
+                        "pages": [
+                            "api-reference/verifications/get",
+                            "api-reference/verifications/create",
+                            "api-reference/verifications/delete"
+                        ]
                     }
                 ]
             }
