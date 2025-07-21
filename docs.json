@@ -41,20 +41,13 @@
             {
                 "tab": "API Reference",
                 "groups": [
-                    {
-                        "group": "API Documentation",
-                        "pages": [
-                            "api-reference/introduction"
-                        ]
-                    },
-                   {
-                        "group": "Verifications",
-                        "pages": [
-                            "api-reference/verifications/get",
-                            "api-reference/verifications/create",
-                            "api-reference/verifications/delete"
-                        ]
+                  {
+                    "group": "Endpoints",
+                    "openapi": {
+                      "source": "api-reference/openapi.json",
+                      "directory": "api-reference"
                     }
+                  }
                 ]
             }
         ]
