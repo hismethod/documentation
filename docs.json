@@ -50,10 +50,10 @@
                     {
                         "group": "Endpoint Examples",
                         "pages": [
-                            "api-reference/endpoint/get",
-                            "api-reference/endpoint/create",
-                            "api-reference/endpoint/delete",
-                            "api-reference/endpoint/webhook"
+                            "api-reference/verifications/get",
+                            "api-reference/verifications/create",
+                            "api-reference/verifications/delete",
+                            "api-reference/verifications/webhook"
                         ]
                     }
                 ]
