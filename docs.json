@@ -42,12 +42,19 @@
                 "tab": "API Reference",
                 "groups": [
                   {
-                    "group": "Endpoints",
-                    "openapi": {
-                      "source": "api-reference/openapi.json",
-                      "directory": "api-reference"
-                    }
-                  }
+          "group": "Verifications API",
+          "pages": [
+            "api-reference/verifications/create",
+            "api-reference/verifications/get",
+            "api-reference/verifications/delete"
+          ]
+        },
+        {
+          "group": "Token API",
+          "pages": [
+            "api-reference/token/create"
+          ]
+        }
                 ]
             }
         ]
