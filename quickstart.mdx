@@ -1,5 +1,4 @@
 ---
-title: "Quickstart"
 sidebarTitle: "Quickstart"
 ---
 
@@ -17,12 +16,42 @@ To use the hConnect API, you need a `Client ID` and a `Client Secret`.
 
 ### Step 2: Create a Verification Session
 
-Now, call the API to create a session to verify a user. We'll use Sweden's **BankID** as an example.
-
-Replace `YOUR_CLIENT_ID` and `YOUR_CLIENT_SECRET` with the values from Step 1.
+Now, call the API to create a session to verify a user.
 
 <Tabs>
+  <Tab title="MitID (Redirect Flow)">
+    Redirect flows send the user to the eID provider's website to authenticate. The `redirectUri` is required for this flow.
+
+    ```bash cURL
+    curl --request POST \
+      --url https://api-gw.hopae.com/v1/verifications \
+      --user "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET" \
+      --header "Content-Type: application/json" \
+      --data '{
+        "eid": "mitid",
+        "redirectUri": "https://yourapp.com/auth/callback"
+      }'
+    ```
+
+    **✅ Success Response:**
+    Your application should now redirect the user's browser to the `flowDetails.authorizationUrl`.
+
+    ```json
+    {
+      "verificationId": "ver_...",
+      "status": "initiated",
+      "eid": "mitid",
+      "flow": "redirect",
+      "flowDetails": {
+        "authorizationUrl": "REDIRECT_YOUR_CUSTOMER_TO_HERE"
+      },
+      "expiresAt": "..."
+    }
+    ```
+  </Tab>
   <Tab title="BankID SE (QR Flow)">
+    `YOUR_CLIENT_ID` and `YOUR_CLIENT_SECRET` should be replaced with the values from Step 1.
+
     ```bash cURL
     curl --request POST \
       --url https://api-gw.hopae.com/v1/verifications \
@@ -43,7 +72,7 @@ Replace `YOUR_CLIENT_ID` and `YOUR_CLIENT_SECRET` with the values from Step 1.
       "eid": "bankidse",
       "flow": "qr",
       "flowDetails": {
-        "qrData": "BASE64_ENCODED_QR_CODE_DATA"
+        "qrData": "RENDER_THIS_QR_CODE_DATA"
       },
       "expiresAt": "2024-07-30T10:05:00.000Z"
     }
@@ -80,9 +109,14 @@ Replace `YOUR_CLIENT_ID` and `YOUR_CLIENT_SECRET` with the values from Step 1.
   </Tab>
 </Tabs>
 
-### Step 3: Check the Verification Status
+### Step 3: Handle the Result
 
-Periodically poll the API with the `verificationId` until the user completes the verification.
+After the user authenticates, hConnect's session status will update to `completed`.
+
+- **For Redirect flows,** the user will be sent back to your `redirectUri` with an `authorization_code` in the query parameters.
+- **For QR and Push flows,** you can poll the `GET /v1/verifications/{verificationId}` endpoint until the status is `completed`.
+
+**Checking the Final Status (Polling Example for QR/Push):**
 
 ```bash cURL
 curl --request GET \
@@ -91,13 +125,14 @@ curl --request GET \
 ```
 
 **✅ Completed Response:**
-The `status` will change to `completed`, and the `verifiedAttributes` field will contain the user's information.
+The `status` will be `completed`, and the `verifiedAttributes` field will contain the user's information.
 
 ```json
 {
   "verificationId": "ver_Abc123Def456",
   "status": "completed",
   "eid": "bankidse",
+  "authorizationCode": "auth_code_for_token_exchange",
   "verifiedAttributes": {
     "id": "pairwise-id-for-this-user",
     "provider_id": "198001011234",
@@ -111,8 +146,7 @@ The `status` will change to `completed`, and the `verifiedAttributes` field will
 ```
 
 <Note>
-  **`Looking for the authorizationCode?`**
-  For QR and Push flows, the `authorizationCode` is included in the response when the status becomes `completed`. You can then use this code with our [**Token API**](/api-reference/token/create) or follow the [**QR Flow Integration Guide**](/guides/qr-flow) to redirect the user.
+  The `authorizationCode` received (either in the redirect URL or the polling response) is a single-use code. Use it to call the [**Token API**](/api-reference/token/create) to get a final `id_token`.
 </Note>
 
 **Congratulations\!** 🎉 You've successfully completed your first identity verification.
