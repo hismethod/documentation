@@ -49,19 +49,6 @@
                         "example": {
                             "email": "user@example.com"
                         }
-                    },
-                    "codeChallenge": {
-                        "type": "string",
-                        "description": "The PKCE code challenge."
-                    },
-                    "codeChallengeMethod": {
-                        "type": "string",
-                        "enum": [
-                            "S256",
-                            "plain"
-                        ],
-                        "description": "The PKCE code challenge method.",
-                        "default": "S256"
                     }
                 },
                 "required": [
