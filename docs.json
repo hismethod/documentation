@@ -47,14 +47,11 @@
                             "api-reference/introduction"
                         ]
                     },
-                    {
-                        "group": "Endpoint Examples",
-                        "pages": [
-                            "api-reference/verifications/get",
-                            "api-reference/verifications/create",
-                            "api-reference/verifications/delete",
-                            "api-reference/verifications/webhook"
-                        ]
+                   {
+                        "group": "EndPoints",
+                        "openapi": {
+                          "source": "openapi.json"
+                        }
                     }
                 ]
             }
