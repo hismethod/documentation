@@ -48,7 +48,7 @@
                         ]
                     },
                    {
-                        "group": "Endpoint",
+                        "group": "verifications",
                         "openapi": {
                           "source": "openapi.json"
                         }
