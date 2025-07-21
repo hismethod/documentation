@@ -1,0 +1,355 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "hConnect API",
+        "description": "The hConnect API provides a unified interface for electronic identity verification across multiple eID providers globally.",
+        "version": "1.0.0",
+        "contact": {
+            "name": "hConnect Support",
+            "url": "https://www.hopae.com",
+            "email": "dev@hopae.com"
+        }
+    },
+    "servers": [
+        {
+            "url": "https://api-gw.hopae.com",
+            "description": "Production Server"
+        },
+        {
+            "url": "http://localhost:8000",
+            "description": "Development Server"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "basicAuth": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "Basic authentication using clientId and clientSecret."
+            }
+        },
+        "schemas": {
+            "CreateVerificationRequest": {
+                "type": "object",
+                "properties": {
+                    "eid": {
+                        "type": "string",
+                        "description": "The identifier for the desired eID provider.",
+                        "example": "bankidse"
+                    },
+                    "redirectUri": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "URL to redirect to after a redirect-based verification."
+                    },
+                    "webhookUrl": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "URL to receive asynchronous status updates."
+                    },
+                    "userData": {
+                        "type": "object",
+                        "description": "User information required by certain eID providers.",
+                        "example": {
+                            "email": "user@example.com"
+                        }
+                    },
+                    "codeChallenge": {
+                        "type": "string",
+                        "description": "The PKCE code challenge."
+                    },
+                    "codeChallengeMethod": {
+                        "type": "string",
+                        "enum": [
+                            "S256",
+                            "plain"
+                        ],
+                        "description": "The PKCE code challenge method.",
+                        "default": "S256"
+                    }
+                },
+                "required": [
+                    "eid"
+                ]
+            },
+            "CreateVerificationResponse": {
+                "type": "object",
+                "properties": {
+                    "verificationId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "initiated",
+                            "pending"
+                        ]
+                    },
+                    "eid": {
+                        "type": "string"
+                    },
+                    "flow": {
+                        "type": "string",
+                        "enum": [
+                            "qr",
+                            "redirect",
+                            "push"
+                        ]
+                    },
+                    "flowDetails": {
+                        "type": "object",
+                        "properties": {
+                            "qrData": {
+                                "type": "string",
+                                "description": "Base64 data for QR code generation."
+                            },
+                            "authorizationUrl": {
+                                "type": "string",
+                                "format": "uri",
+                                "description": "URL for browser redirection."
+                            }
+                        }
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "GetVerificationResponse": {
+                "type": "object",
+                "properties": {
+                    "verificationId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "eid": {
+                        "type": "string"
+                    },
+                    "authorizationCode": {
+                        "type": "string",
+                        "description": "Appears when status is 'completed'."
+                    },
+                    "verifiedAttributes": {
+                        "type": "object",
+                        "description": "Contains user's verified data upon completion."
+                    },
+                    "error": {
+                        "type": "object",
+                        "properties": {
+                            "code": {
+                                "type": "string"
+                            },
+                            "message": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "verifiedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "TokenRequest": {
+                "type": "object",
+                "properties": {
+                    "grant_type": {
+                        "type": "string",
+                        "enum": [
+                            "authorization_code"
+                        ],
+                        "description": "Must be 'authorization_code'."
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "The authorization code received after a successful verification."
+                    },
+                    "client_id": {
+                        "type": "string",
+                        "description": "Your application's Client ID."
+                    },
+                    "client_secret": {
+                        "type": "string",
+                        "description": "Your application's Client Secret. Required for confidential clients."
+                    },
+                    "code_verifier": {
+                        "type": "string",
+                        "description": "The PKCE code verifier. Required if a codeChallenge was provided during verification creation."
+                    }
+                },
+                "required": [
+                    "grant_type",
+                    "code",
+                    "client_id"
+                ]
+            }
+        }
+    },
+    "security": [
+        {
+            "basicAuth": []
+        }
+    ],
+    "paths": {
+        "/v1/verifications": {
+            "post": {
+                "summary": "Create Verification",
+                "description": "Initiates a new identity verification session with the specified eID provider. Supports PKCE for enhanced security.",
+                "operationId": "createVerification",
+                "tags": [
+                    "Verifications"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateVerificationRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Verification session created successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreateVerificationResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters or eID not enabled."
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid client credentials."
+                    }
+                }
+            }
+        },
+        "/v1/verifications/{verificationId}": {
+            "get": {
+                "summary": "Get Verification Status",
+                "description": "Retrieves the current status and result of a verification session.",
+                "operationId": "getVerification",
+                "tags": [
+                    "Verifications"
+                ],
+                "parameters": [
+                    {
+                        "name": "verificationId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The unique identifier for the verification session."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification status retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetVerificationResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Verification not found."
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Cancel Verification",
+                "description": "Cancels and deletes an ongoing verification session.",
+                "operationId": "deleteVerification",
+                "tags": [
+                    "Verifications"
+                ],
+                "parameters": [
+                    {
+                        "name": "verificationId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The unique identifier for the verification session."
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Verification cancelled successfully."
+                    },
+                    "400": {
+                        "description": "Bad Request - Verification is already in a terminal state."
+                    },
+                    "404": {
+                        "description": "Verification not found."
+                    }
+                }
+            }
+        },
+        "/token": {
+            "post": {
+                "summary": "Exchange Code for Token",
+                "description": "Exchanges an authorization code for an ID token, following the OAuth 2.0 standard. PKCE is supported.",
+                "operationId": "exchangeCodeForToken",
+                "tags": [
+                    "Token"
+                ],
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TokenRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Token exchange successful.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id_token": {
+                                            "type": "string",
+                                            "description": "A JWT containing the user's verified claims."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid grant_type or missing parameters."
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid code, client credentials, or PKCE verifier."
+                    }
+                }
+            }
+        }
+    }
+}

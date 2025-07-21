@@ -7,6 +7,22 @@
         "light": "#07C983",
         "dark": "#15803D"
     },
+    "api": {
+        "baseUrl": "https://api-gw.test.hopae.com",
+        "auth": {
+            "method": "basic"
+        },
+        "playground": {
+            "display": "interactive"
+        },
+        "examples": {
+            "languages": [
+                "curl",
+                "javascript",
+                "python"
+            ]
+        }
+    },
     "favicon": "/favicon.svg",
     "navigation": {
         "tabs": [
@@ -41,20 +57,10 @@
             {
                 "tab": "API Reference",
                 "groups": [
-                  {
-          "group": "Verifications API",
-          "pages": [
-            "api-reference/verifications/create",
-            "api-reference/verifications/get",
-            "api-reference/verifications/delete"
-          ]
-        },
-        {
-          "group": "Token API",
-          "pages": [
-            "api-reference/token/create"
-          ]
-        }
+                    {
+                        "group": "API Reference",
+                        "openapi": "openapi.json"
+                    }
                 ]
             }
         ]
