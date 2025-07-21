@@ -1,5 +1,45 @@
 {
-  "openapi": "3.0.0",
+  "openapi": "3.1.0",
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "info": {
+    "title": "Identity Gateway API",
+    "description": "\n# Identity Gateway API\n\nThe Identity Gateway provides a unified Identity Verification API for electronic identity verification across multiple eID providers.\n\n## Authentication\n\nPublic API endpoints require Basic Authentication:\n- **Authorization**: Basic base64(clientId:clientSecret)\n\n## Supported eID Providers\n\n- **MitID** (Denmark) - Redirect flow\n- **BankID SE** (Sweden) - QR code flow  \n- **Norwegian BankID** (Norway) - Redirect flow\n- **iDIN** (Netherlands) - Redirect flow\n- **FinTN** (Finland) - Redirect flow\n- **Evrotrust** (Bulgaria) - QR code flow\n- **SmartID** (Baltics) - QR code flow\n- **AusweisApp** (Germany) - Redirect flow\n\n## Error Handling\n\nAll errors follow a consistent structure with specific error codes and helpful details.\n    ",
+    "version": "1.0.0",
+    "contact": {
+      "name": "hConnect Support",
+      "url": "https://www.hopae.com",
+      "email": "dev@hopae.com"
+    },
+    "license": {
+      "name": "MIT",
+      "identifier": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "tags": [
+    {
+      "name": "Verifications",
+      "description": "Identity verification endpoints"
+    },
+    {
+      "name": "Health",
+      "description": "Service health and status endpoints"
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://api-gw.hopae.com",
+      "description": "Production"
+    },
+    {
+      "url": "https://api-gw.test.hopae.com",
+      "description": "Test"
+    },
+    {
+      "url": "http://localhost:8000",
+      "description": "Development"
+    }
+  ],
   "paths": {
     "/v1/verifications": {
       "post": {
@@ -263,44 +303,140 @@
       }
     }
   },
-  "info": {
-    "title": "Identity Gateway API",
-    "description": "\n# Identity Gateway API\n\nThe Identity Gateway provides a unified Identity Verification API for electronic identity verification across multiple eID providers.\n\n## Authentication\n\nPublic API endpoints require Basic Authentication:\n- **Authorization**: Basic base64(clientId:clientSecret)\n\n## Supported eID Providers\n\n- **MitID** (Denmark) - Redirect flow\n- **BankID SE** (Sweden) - QR code flow  \n- **Norwegian BankID** (Norway) - Redirect flow\n- **iDIN** (Netherlands) - Redirect flow\n- **FinTN** (Finland) - Redirect flow\n- **Evrotrust** (Bulgaria) - QR code flow\n- **SmartID** (Baltics) - QR code flow\n- **AusweisApp** (Germany) - Redirect flow\n\n## Webhook Events\n\nConfigure webhook URLs to receive real-time notifications:\n- `verification.initiated` - Verification session started\n- `verification.pending` - User interaction required\n- `verification.completed` - Verification successful\n- `verification.failed` - Verification failed\n- `verification.expired` - Session expired\n- `verification.cancelled` - User cancelled\n\n## Error Handling\n\nAll errors follow a consistent structure with specific error codes and helpful details.\n    ",
-    "version": "1.0.0",
-    "contact": {
-      "name": "hConnect Support",
-      "url": "https://www.hopae.com",
-      "email": "dev@hopae.com"
+  "webhooks": {
+    "verification.initiated": {
+      "post": {
+        "summary": "Verification Initiated",
+        "description": "Notifies that a new verification session has been initiated.",
+        "requestBody": {
+          "description": "Verification object in 'initiated' state.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetVerificationResponseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully."
+          }
+        }
+      }
     },
-    "license": {
-      "name": "MIT",
-      "url": "https://opensource.org/licenses/MIT"
+    "verification.pending": {
+      "post": {
+        "summary": "Verification Pending",
+        "description": "Notifies that user interaction is now required for the verification.",
+        "requestBody": {
+          "description": "Verification object in 'pending' state.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetVerificationResponseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully."
+          }
+        }
+      }
+    },
+    "verification.completed": {
+      "post": {
+        "summary": "Verification Completed",
+        "description": "Notifies that a verification session has been successfully completed.",
+        "requestBody": {
+          "description": "Verification object in 'completed' state with verified attributes.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetVerificationResponseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully."
+          }
+        }
+      }
+    },
+    "verification.failed": {
+      "post": {
+        "summary": "Verification Failed",
+        "description": "Notifies that a verification session has failed.",
+        "requestBody": {
+          "description": "Verification object in 'failed' state with error details.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetVerificationResponseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully."
+          }
+        }
+      }
+    },
+    "verification.expired": {
+      "post": {
+        "summary": "Verification Expired",
+        "description": "Notifies that a verification session has expired.",
+        "requestBody": {
+          "description": "Verification object in 'expired' state.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetVerificationResponseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully."
+          }
+        }
+      }
+    },
+    "verification.cancelled": {
+      "post": {
+        "summary": "Verification Cancelled",
+        "description": "Notifies that a verification session was cancelled by the user.",
+        "requestBody": {
+          "description": "Verification object in 'cancelled' state.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetVerificationResponseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully."
+          }
+        }
+      }
     }
   },
-  "tags": [
-    {
-      "name": "Verifications",
-      "description": "Identity verification endpoints"
-    },
-    {
-      "name": "Health",
-      "description": "Service health and status endpoints"
-    }
-  ],
-  "servers": [
-    {
-      "url": "https://api-gw.hopae.com",
-      "description": "Production"
-    },
-    {
-      "url": "https://api-gw.test.hopae.com",
-      "description": "Test"
-    },
-    {
-      "url": "http://localhost:8000",
-      "description": "Development"
-    }
-  ],
   "components": {
     "securitySchemes": {
       "basic-auth": {
